@@ -1,14 +1,19 @@
 <?php
+session_start();
+if (!isset($_SESSION['employee_id'])) {
+    header("Location: login.php");
+    exit;
+}
 require_once 'core/dbConfig.php';
 require_once 'core/models.php';
 
-if (!isset($_GET['case_id'])) {
+if (!isset($_GET['repair_id'])) {
     header("Location: index.php");
     exit;
 }
 
-$case_id = $_GET['case_id'];
-$repair = getRepairCaseById($pdo, $case_id);
+$repair_id = $_GET['repair_id'];
+$repair = getRepairCaseById($pdo, $repair_id);
 
 if (!$repair) {
     die("Repair case not found.");
@@ -16,9 +21,10 @@ if (!$repair) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['confirm'])) {
-        deleteRepairCase($pdo, $case_id);
+        deleteRepairCase($pdo, $repair_id);
     }
-    header("Location: view_repairs.php?customer_id=" . $repair['customer_id']);
+    $customer_id = $repair['customer_id'];
+    header("Location: view_repairs.php?customer_id=" . $customer_id);
     exit;
 }
 ?>
@@ -27,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Repair Case #<?= htmlspecialchars($repair['case_id']) ?></title>
+    <title>Delete Repair Case #<?= htmlspecialchars($repair['repair_id']) ?></title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -41,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>You are about to delete the following repair case. This action cannot be undone.</p>
             
             <div style="background: var(--background); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
-                <p><strong>Case ID:</strong> #<?= htmlspecialchars($repair['case_id']) ?></p>
+                <p><strong>Case ID:</strong> #<?= htmlspecialchars($repair['repair_id']) ?></p>
                 <p><strong>Gadget Type:</strong> <?= htmlspecialchars($repair['gadget_type']) ?></p>
                 <p><strong>Issue:</strong> <?= htmlspecialchars($repair['described_issue']) ?></p>
             </div>

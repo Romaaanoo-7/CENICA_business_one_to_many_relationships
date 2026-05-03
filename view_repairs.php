@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (!isset($_SESSION['employee_id'])) {
+    header("Location: login.php");
+    exit;
+}
 require_once 'core/dbConfig.php';
 require_once 'core/models.php';
 
@@ -17,9 +22,9 @@ if (!$customer) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $gadget_type = trim($_POST['gadget_type']);
     $described_issue = trim($_POST['described_issue']);
-    
+
     if (!empty($gadget_type) && !empty($described_issue)) {
-        insertRepairCase($pdo, $customer_id, $gadget_type, $described_issue);
+        insertRepairCase($pdo, $customer_id, $gadget_type, $described_issue, $_SESSION['employee_id']);
         header("Location: view_repairs.php?customer_id=" . $customer_id);
         exit;
     }
@@ -29,29 +34,46 @@ $repairs = getRepairsByCustomerId($pdo, $customer_id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Repairs for <?= htmlspecialchars($customer['first_name']) ?></title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Repairs for <span style="color: var(--primary);"><?= htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']) ?></span></h1>
-            <a href="index.php" class="btn btn-secondary">Back to Customers</a>
+        <div class="header"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--primary); color: white; border-radius: 8px; margin-bottom: 20px;">
+            <h1 style="margin: 0; font-size: 1.5rem;">Repairs For
+                <?= htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']) ?>
+            </h1>
+            <div>
+                <span style="margin-right: 15px; font-weight: bold;">
+                    Active Session: <?= htmlspecialchars($_SESSION['full_name'] ?? 'Employee') ?>
+                </span>
+                <a href="logout.php"
+                    style="background: #dc3545; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-weight: bold;">Logout</a>
+            </div>
         </div>
+
+        <a href="index.php"
+            style="display: inline-block; margin-bottom: 15px; text-decoration: none; color: #555; font-weight: bold;">&larr;
+            Back to Customers List</a>
 
         <div class="card">
             <h2>Log New Repair Case</h2>
             <form method="POST" action="">
                 <div class="form-group">
                     <label for="gadget_type">Gadget Type</label>
-                    <input type="text" id="gadget_type" name="gadget_type" required placeholder="e.g. iPhone 13, Dell XPS 15">
+                    <input type="text" id="gadget_type" name="gadget_type" required
+                        placeholder="e.g. iPhone 13, Dell XPS 15">
                 </div>
                 <div class="form-group">
                     <label for="described_issue">Described Issue</label>
-                    <textarea id="described_issue" name="described_issue" rows="4" required placeholder="Describe the problem in detail..."></textarea>
+                    <textarea id="described_issue" name="described_issue" rows="4" required
+                        placeholder="Describe the problem in detail..."></textarea>
                 </div>
                 <button type="submit">Log Repair Case</button>
             </form>
@@ -71,21 +93,27 @@ $repairs = getRepairsByCustomerId($pdo, $customer_id);
                             <th>Gadget Type</th>
                             <th>Issue</th>
                             <th>Date Added</th>
+                            <th>Added By</th>
+                            <th>Last Updated</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($repairs as $repair): ?>
-                        <tr>
-                            <td>#<?= htmlspecialchars($repair['case_id']) ?></td>
-                            <td><strong><?= htmlspecialchars($repair['gadget_type']) ?></strong></td>
-                            <td><?= htmlspecialchars($repair['described_issue']) ?></td>
-                            <td><?= date('M d, Y', strtotime($repair['date_added'])) ?></td>
-                            <td class="action-links">
-                                <a href="edit_repair.php?case_id=<?= $repair['case_id'] ?>" class="btn-sm btn-edit">Edit</a>
-                                <a href="delete_repair.php?case_id=<?= $repair['case_id'] ?>" class="btn-sm btn-danger">Delete</a>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td>#<?= htmlspecialchars($repair['repair_id']) ?></td>
+                                <td><strong><?= htmlspecialchars($repair['gadget_type']) ?></strong></td>
+                                <td><?= htmlspecialchars($repair['described_issue']) ?></td>
+                                <td><?= date('M d, Y', strtotime($repair['date_added'])) ?></td>
+                                <td><?= htmlspecialchars($repair['added_by_name'] ?? 'Unknown') ?></td>
+                                <td><?= htmlspecialchars($repair['last_updated']) ?></td>
+                                <td class="action-links">
+                                    <a href="edit_repair.php?repair_id=<?= $repair['repair_id'] ?>"
+                                        style="margin-right: 10px; color: #0d6efd; font-weight: bold; text-decoration: none;">Update</a>
+                                    <a href="delete_repair.php?repair_id=<?= $repair['repair_id'] ?>"
+                                        style="color: #dc3545; font-weight: bold; text-decoration: none;">Delete</a>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -93,4 +121,5 @@ $repairs = getRepairsByCustomerId($pdo, $customer_id);
         <?php endif; ?>
     </div>
 </body>
+
 </html>

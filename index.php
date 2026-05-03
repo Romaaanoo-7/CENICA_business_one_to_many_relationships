@@ -9,9 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = trim($_POST['address']);
     $phonenum = trim($_POST['phonenum']);
     $email_address = trim($_POST['email_address']);
-    
+
     if (!empty($first_name) && !empty($last_name)) {
-        insertCustomer($pdo, $first_name, $last_name, $date_of_birth, $address, $phonenum, $email_address);
+        insertCustomer($pdo, $first_name, $last_name, $date_of_birth, $address, $phonenum, $email_address, $_SESSION['employee_id']);
         header("Location: index.php");
         exit;
     }
@@ -21,16 +21,27 @@ $customers = getAllCustomers($pdo);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Repair Services - Customers</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>IT Repair Services</h1>
+    <div class="container" style="max-width: 1200px; width: 95%; margin: auto;">
+        <div class="header"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--primary); color: white; border-radius: 8px; margin-bottom: 20px;">
+            <h1 style="margin: 0; font-size: 1.5rem;">IT Repair Services - Customers</h1>
+            <div>
+                <span style="margin-right: 15px; font-weight: bold;">
+                    Welcome,
+                    <?= htmlspecialchars($_SESSION['full_name'] ?? 'Employee') ?>
+                </span>
+                <a href="logout.php"
+                    style="background: #dc3545; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-weight: bold;">Logout</a>
+            </div>
         </div>
 
         <div class="card">
@@ -70,6 +81,7 @@ $customers = getAllCustomers($pdo);
 
         <h2>Customers List</h2>
         <div class="table-container">
+            <div style="overflow-x: auto; width: 100%;">
             <table>
                 <thead>
                     <tr>
@@ -77,28 +89,37 @@ $customers = getAllCustomers($pdo);
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Email</th>
+                        <th>Added By</th>
+                        <th>Last Updated</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($customers)): ?>
-                    <tr><td colspan="5" style="text-align: center;">No customers found.</td></tr>
+                        <tr>
+                            <td colspan="7" style="text-align: center;">No customers found.</td>
+                        </tr>
                     <?php else: ?>
-                    <?php foreach ($customers as $customer): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($customer['customer_id']) ?></td>
-                        <td><strong><?= htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']) ?></strong></td>
-                        <td><?= htmlspecialchars($customer['phonenum']) ?></td>
-                        <td><?= htmlspecialchars($customer['email_address']) ?></td>
-                        <td class="action-links">
-                            <a href="view_repairs.php?customer_id=<?= $customer['customer_id'] ?>" class="btn-sm">View Repairs</a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
+                        <?php foreach ($customers as $customer): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($customer['customer_id']) ?></td>
+                                <td><strong><?= htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']) ?></strong>
+                                </td>
+                                <td><?= htmlspecialchars($customer['phonenum']) ?></td>
+                                <td><?= htmlspecialchars($customer['email_address']) ?></td>
+                                <td><?= htmlspecialchars($customer['added_by_name'] ?? 'Unknown') ?></td>
+                                <td><?= htmlspecialchars($customer['last_updated']) ?></td>
+                                <td class="action-links">
+                                    <a href="view_repairs.php?customer_id=<?= $customer['customer_id'] ?>" class="btn btn-primary btn-sm">View Repairs</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </body>
+
 </html>
