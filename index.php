@@ -82,41 +82,44 @@ $customers = getAllCustomers($pdo);
         <h2>Customers List</h2>
         <div class="table-container">
             <div style="overflow-x: auto; width: 100%;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th>Added By</th>
-                        <th>Last Updated</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($customers)): ?>
+                <table>
+                    <thead>
                         <tr>
-                            <td colspan="7" style="text-align: center;">No customers found.</td>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Added By</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
                         </tr>
-                    <?php else: ?>
-                        <?php foreach ($customers as $customer): ?>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($customers)): ?>
                             <tr>
-                                <td><?= htmlspecialchars($customer['customer_id']) ?></td>
-                                <td><strong><?= htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']) ?></strong>
-                                </td>
-                                <td><?= htmlspecialchars($customer['phonenum']) ?></td>
-                                <td><?= htmlspecialchars($customer['email_address']) ?></td>
-                                <td><?= htmlspecialchars($customer['added_by_name'] ?? 'Unknown') ?></td>
-                                <td><?= htmlspecialchars($customer['last_updated']) ?></td>
-                                <td class="action-links">
-                                    <a href="view_repairs.php?customer_id=<?= $customer['customer_id'] ?>" class="btn btn-primary btn-sm">View Repairs</a>
-                                </td>
+                                <td colspan="7" style="text-align: center;">No customers found.</td>
                             </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                        <?php else: ?>
+                            <?php foreach ($customers as $customer): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($customer['customer_id']) ?></td>
+                                    <td><strong>
+                                            <?= htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']) ?>
+                                        </strong>
+                                    </td>
+                                    <td><?= htmlspecialchars($customer['phonenum']) ?></td>
+                                    <td><?= htmlspecialchars($customer['email_address']) ?></td>
+                                    <td><?= htmlspecialchars($customer['added_by_name'] ?? 'Unknown') ?></td>
+                                    <td><?= htmlspecialchars($customer['last_updated']) ?></td>
+                                    <td class="action-links">
+                                        <a href="view_repairs.php?customer_id=<?= $customer['customer_id'] ?>"
+                                            class="btn btn-primary btn-sm">View Repairs</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

@@ -16,11 +16,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $last_name = trim($_POST['last_name']);
 
     if (!empty($username) && !empty($password) && !empty($first_name) && !empty($last_name)) {
-        if (registerEmployee($pdo, $username, $password, $first_name, $last_name)) {
-            header("Location: login.php");
-            exit;
+
+        // Define the regex pattern for complexity requirements
+        $pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/';
+
+        // Validate password against the pattern
+        if (!preg_match($pattern, $password)) {
+            $error = "Password must be at least 8 characters long and include a number, an uppercase letter, and a lowercase letter.";
         } else {
-            $error = "Registration failed. Username might already exist.";
+            // Password is valid, proceed with database insertion
+            if (registerEmployee($pdo, $username, $password, $first_name, $last_name)) {
+                header("Location: login.php");
+                exit;
+            } else {
+                $error = "Registration failed. Username might already exist.";
+            }
         }
     }
 }
