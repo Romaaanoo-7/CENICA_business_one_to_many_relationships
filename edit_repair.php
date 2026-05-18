@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $described_issue = trim($_POST['described_issue']);
 
     if (!empty($gadget_type) && !empty($described_issue)) {
-        updateRepairCase($pdo, $repair_id, $gadget_type, $described_issue);
+        updateRepairCase($pdo, $repair_id, $gadget_type, $described_issue, $_SESSION['username']);
         $customer_id = $repair['customer_id'];
         header("Location: view_repairs.php?customer_id=" . $customer_id);
         exit;

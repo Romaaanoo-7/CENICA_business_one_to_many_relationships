@@ -39,3 +39,13 @@ ALTER TABLE repair_cases
 ADD added_by INT,
 ADD last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 ADD FOREIGN KEY (added_by) REFERENCES employees(employee_id);
+
+
+CREATE TABLE activity_logs (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    action_type VARCHAR(50) NOT NULL,
+    entity VARCHAR(50) NOT NULL,
+    details TEXT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);

@@ -21,7 +21,7 @@ if (!$repair) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['confirm'])) {
-        deleteRepairCase($pdo, $repair_id);
+        deleteRepairCase($pdo, $repair_id, $_SESSION['username']);
     }
     $customer_id = $repair['customer_id'];
     header("Location: view_repairs.php?customer_id=" . $customer_id);

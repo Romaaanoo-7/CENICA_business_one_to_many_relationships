@@ -24,13 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $described_issue = trim($_POST['described_issue']);
 
     if (!empty($gadget_type) && !empty($described_issue)) {
-        insertRepairCase($pdo, $customer_id, $gadget_type, $described_issue, $_SESSION['employee_id']);
+        insertRepairCase($pdo, $customer_id, $gadget_type, $described_issue, $_SESSION['employee_id'], $_SESSION['username']);
         header("Location: view_repairs.php?customer_id=" . $customer_id);
         exit;
     }
 }
 
-$repairs = getRepairsByCustomerId($pdo, $customer_id);
+$searchQuery = isset($_GET['search']) ? $_GET['search'] : null;
+$repairs = getRepairsByCustomerId($pdo, $customer_id, $searchQuery);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -80,6 +81,14 @@ $repairs = getRepairsByCustomerId($pdo, $customer_id);
         </div>
 
         <h2>Repair History</h2>
+        <form method="GET" action="" style="margin-bottom: 15px; display: flex; gap: 10px;">
+            <input type="hidden" name="customer_id" value="<?= htmlspecialchars($_GET['customer_id']) ?>">
+            <input type="text" name="search" placeholder="Search repairs..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>" style="padding: 8px; flex: 1; max-width: 300px; border: 1px solid #ccc; border-radius: 4px;">
+            <button type="submit" style="padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+            <?php if (isset($_GET['search']) && !empty($_GET['search'])): ?>
+                <a href="view_repairs.php?customer_id=<?= htmlspecialchars($_GET['customer_id']) ?>" style="padding: 8px 15px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Clear</a>
+            <?php endif; ?>
+        </form>
         <?php if (empty($repairs)): ?>
             <div class="card" style="text-align: center; padding: 3rem;">
                 <p style="color: var(--text-muted); font-size: 1.1rem;">No repair cases logged for this customer yet.</p>

@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'core/dbConfig.php';
 require_once 'core/models.php';
 
@@ -11,13 +12,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email_address = trim($_POST['email_address']);
 
     if (!empty($first_name) && !empty($last_name)) {
-        insertCustomer($pdo, $first_name, $last_name, $date_of_birth, $address, $phonenum, $email_address, $_SESSION['employee_id']);
+        insertCustomer($pdo, $first_name, $last_name, $date_of_birth, $address, $phonenum, $email_address, $_SESSION['employee_id'], $_SESSION['username']);
         header("Location: index.php");
         exit;
     }
 }
 
-$customers = getAllCustomers($pdo);
+$searchQuery = isset($_GET['search']) ? $_GET['search'] : null;
+$customers = getAllCustomers($pdo, $searchQuery);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -80,6 +82,13 @@ $customers = getAllCustomers($pdo);
         </div>
 
         <h2>Customers List</h2>
+        <form method="GET" action="" style="margin-bottom: 15px; display: flex; gap: 10px;">
+            <input type="text" name="search" placeholder="Search customers..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>" style="padding: 8px; flex: 1; max-width: 300px; border: 1px solid #ccc; border-radius: 4px;">
+            <button type="submit" style="padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+            <?php if (isset($_GET['search']) && !empty($_GET['search'])): ?>
+                <a href="index.php" style="padding: 8px 15px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Clear</a>
+            <?php endif; ?>
+        </form>
         <div class="table-container">
             <div style="overflow-x: auto; width: 100%;">
                 <table>
@@ -111,9 +120,16 @@ $customers = getAllCustomers($pdo);
                                     <td><?= htmlspecialchars($customer['email_address']) ?></td>
                                     <td><?= htmlspecialchars($customer['added_by_name'] ?? 'Unknown') ?></td>
                                     <td><?= htmlspecialchars($customer['last_updated']) ?></td>
-                                    <td class="action-links">
+                                    <td style="white-space: nowrap; min-width: 220px;">
                                         <a href="view_repairs.php?customer_id=<?= $customer['customer_id'] ?>"
                                             class="btn btn-primary btn-sm">View Repairs</a>
+                                        <a href="edit_customer.php?customer_id=<?= $customer['customer_id'] ?>"
+                                            class="btn btn-secondary btn-sm"
+                                            style="background: #ffc107; color: #000; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.875rem;">Edit</a>
+                                        <a href="delete_customer.php?customer_id=<?= $customer['customer_id'] ?>"
+                                            class="btn btn-danger btn-sm"
+                                            style="background: #dc3545; color: #fff; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.875rem;"
+                                            onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
